@@ -5,10 +5,14 @@ const express = require("express");
 
 const app = express();
 
+const connectDB = require("./db/db");
+
+connectDB();
+
+app.use(cors());
+
 app.get("/", (req, res) => {
   res.send("hello");
 });
 
 module.exports = app;
-
-
