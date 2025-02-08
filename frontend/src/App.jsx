@@ -1,13 +1,14 @@
 import React from "react";
+import { LoginPage } from "./pages/LoginPage";
 
 const App = () => {
-	return (
-		<>
-			<div className="text-center text-[30px] font-bold">
-				<h1>App</h1>
-			</div>
-		</>
-	);
+  return (
+    <>
+      <div>
+        <LoginPage></LoginPage>
+      </div>
+    </>
+  );
 };
 
 export default App;
