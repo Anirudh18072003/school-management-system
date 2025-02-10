@@ -9,6 +9,9 @@ const JWT_SECRET = process.env.JWT_SECRET || "your_jwt_secret"; // Use environme
 // ===============================
 // 📌 Register a New Student
 // ===============================
+// ===============================
+// 📌 Register a New Student
+// ===============================
 router.post("/register", async (req, res) => {
   const { name, email, age, grade, password } = req.body;
 
@@ -19,19 +22,16 @@ router.post("/register", async (req, res) => {
       return res.status(400).json({ message: "Student already exists" });
     }
 
-    // Hash password
-    const hashedPassword = await bcrypt.hash(password, 10);
-
-    // Create new student
+    // Create new student with plain text password
     student = new Student({
       name,
       email,
       age,
       grade,
-      password: hashedPassword,
+      password, // Now passing the plain text password
     });
 
-    await student.save();
+    await student.save(); // Pre-save hook will hash the password
 
     res.status(201).json({ message: "Student registered successfully" });
   } catch (error) {
