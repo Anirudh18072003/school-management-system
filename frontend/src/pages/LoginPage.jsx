@@ -4,31 +4,31 @@ import axios from "axios"; // For API requests
 
 export const LoginPage = () => {
   const [role, setRole] = useState("student");
-  const [email, setEmail] = useState(""); // Changed from userId to email
+  const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [error, setError] = useState(null);
-  const navigate = useNavigate(); // React Router Navigation
+  const navigate = useNavigate();
 
   const handleSubmit = async (e) => {
     e.preventDefault();
     setError(null);
-
-    role === "student" ? "/api/students/login" : "/api/teachers/login";
 
     const API_URL = `http://localhost:5000/api/${role}s/login`;
 
     try {
       const response = await axios.post(API_URL, { email, password });
 
-      // Store token in localStorage
+      // Store token & role in localStorage
       localStorage.setItem("token", response.data.token);
       localStorage.setItem("role", role);
 
       // Redirect based on role
       if (role === "student") {
         navigate("/student-dashboard");
-      } else {
+      } else if (role === "teacher") {
         navigate("/teacher-dashboard");
+      } else if (role === "admin") {
+        navigate("/admin-dashboard");
       }
     } catch (err) {
       console.log(err);
@@ -56,7 +56,7 @@ export const LoginPage = () => {
         </h1>
       </div>
 
-      {/* Main Content Area */}
+      {/* Main Content */}
       <div className="relative flex-1 z-10 flex flex-col md:flex-row items-center justify-center gap-8 md:gap-12 px-4 py-8 md:py-12">
         {/* Login Form */}
         <div className="w-full max-w-md md:max-w-xl bg-white/50 p-8 rounded-lg shadow-lg backdrop-blur-md">
@@ -74,6 +74,7 @@ export const LoginPage = () => {
               >
                 <option value="student">Student</option>
                 <option value="teacher">Teacher</option>
+                <option value="admin">Admin</option>
               </select>
             </div>
 
@@ -108,7 +109,7 @@ export const LoginPage = () => {
           </form>
         </div>
 
-        {/* Right Section (Info) */}
+        {/* Info Section */}
         <div className="w-full max-w-md md:max-w-xl bg-black/20 p-6 md:p-8 rounded-xl backdrop-blur-md">
           <h2 className="text-2xl font-bold mb-6 text-white">
             Empowering Modern Education
@@ -123,7 +124,7 @@ export const LoginPage = () => {
                 </h3>
                 <p className="opacity-90 text-white">
                   Access academic records, schedules, and announcements in
-                  real-time
+                  real-time.
                 </p>
               </div>
             </div>
@@ -136,7 +137,7 @@ export const LoginPage = () => {
                 </h3>
                 <p className="opacity-90 text-white">
                   Automated attendance tracking, grade management, and progress
-                  analytics
+                  analytics.
                 </p>
               </div>
             </div>
@@ -148,7 +149,7 @@ export const LoginPage = () => {
                   Multi-Platform Access
                 </h3>
                 <p className="opacity-90 text-white">
-                  Fully responsive design works seamlessly on any device
+                  Fully responsive design works seamlessly on any device.
                 </p>
               </div>
             </div>
@@ -160,7 +161,7 @@ export const LoginPage = () => {
                   Enterprise-Grade Security
                 </h3>
                 <p className="opacity-90 text-white">
-                  Military-grade encryption and regular security audits
+                  Military-grade encryption and regular security audits.
                 </p>
               </div>
             </div>

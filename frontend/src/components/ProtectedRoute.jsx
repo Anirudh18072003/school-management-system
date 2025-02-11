@@ -23,6 +23,11 @@ const ProtectedRoute = ({ children, allowedRoles }) => {
 
     // Role-Based Access Control
     if (!allowedRoles.includes(role)) {
+      if (role === "admin") {
+        return (
+          <Navigate to="/admin-dashboard" replace state={{ from: location }} />
+        );
+      }
       return <Navigate to="/" replace state={{ from: location }} />;
     }
   } catch (error) {
