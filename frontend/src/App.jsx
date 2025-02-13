@@ -4,6 +4,7 @@ import StudentDashboard from "./pages/StudentDashboard";
 import TeacherDashboard from "./pages/TeacherDashboard";
 import ProtectedRoute from "./components/ProtectedRoute";
 import AdminDashboard from "./pages/AdminDashboard";
+import ErrorPage from "./pages/ErrorPage";
 
 function App() {
   return (
@@ -35,6 +36,8 @@ function App() {
           </ProtectedRoute>
         }
       />
+
+      <Route path="*" element={<ErrorPage />} />
     </Routes>
   );
 }
