@@ -1,136 +1,96 @@
 const express = require("express");
-const router = express.Router();
-const Student = require("../models/student");
+const Teacher = require("../models/teacher");
 const bcrypt = require("bcryptjs");
 const jwt = require("jsonwebtoken");
 
-const JWT_SECRET = process.env.JWT_SECRET || "your_jwt_secret"; // Use environment variable
+const router = express.Router();
+const JWT_SECRET = process.env.JWT_SECRET || "your_jwt_secret";
 
-// ===============================
-// 📌 Register a New Student
-// ===============================
-// ===============================
-// 📌 Register a New Student
-// ===============================
-router.post("/register", async (req, res) => {
-  const { name, email, age, grade, password } = req.body;
-
+// Create a new teacher
+router.post("/", async (req, res) => {
   try {
-    // Check if student already exists
-    let student = await Student.findOne({ email });
-    if (student) {
-      return res.status(400).json({ message: "Student already exists" });
-    }
-
-    // Create new student with plain text password
-    student = new Student({
-      name,
-      email,
-      age,
-      grade,
-      password, // Now passing the plain text password
-    });
-
-    await student.save(); // Pre-save hook will hash the password
-
-    res.status(201).json({ message: "Student registered successfully" });
+    const newTeacher = new Teacher(req.body);
+    await newTeacher.save();
+    res.status(201).json(newTeacher);
   } catch (error) {
-    res.status(500).json({ message: "Server error", error });
+    console.error("Error creating teacher:", error);
+    res.status(500).json({ message: "Error creating teacher", error });
   }
 });
 
-// ===============================
-// 📌 Student Login
-// ===============================
+// Get all teachers
+router.get("/", async (req, res) => {
+  try {
+    const teachers = await Teacher.find();
+    res.json(teachers);
+  } catch (error) {
+    console.error("Error fetching teachers:", error);
+    res.status(500).json({ message: "Error fetching teachers", error });
+  }
+});
+
+// Get a single teacher by ID
+router.get("/:id", async (req, res) => {
+  try {
+    const teacher = await Teacher.findById(req.params.id);
+    if (!teacher) {
+      return res.status(404).json({ message: "Teacher not found" });
+    }
+    res.json(teacher);
+  } catch (error) {
+    console.error("Error fetching teacher:", error);
+    res.status(500).json({ message: "Error fetching teacher", error });
+  }
+});
+
+// Update a teacher by ID
+router.put("/:id", async (req, res) => {
+  try {
+    const teacher = await Teacher.findByIdAndUpdate(req.params.id, req.body, {
+      new: true,
+    });
+    if (!teacher) {
+      return res.status(404).json({ message: "Teacher not found" });
+    }
+    res.json(teacher);
+  } catch (error) {
+    console.error("Error updating teacher:", error);
+    res.status(500).json({ message: "Error updating teacher", error });
+  }
+});
+
+// Delete a teacher by ID
+router.delete("/:id", async (req, res) => {
+  try {
+    const teacher = await Teacher.findByIdAndDelete(req.params.id);
+    if (!teacher) {
+      return res.status(404).json({ message: "Teacher not found" });
+    }
+    res.json({ message: "Teacher deleted successfully" });
+  } catch (error) {
+    console.error("Error deleting teacher:", error);
+    res.status(500).json({ message: "Error deleting teacher", error });
+  }
+});
+
+// Teacher Login
 router.post("/login", async (req, res) => {
   const { email, password } = req.body;
-
   try {
-    // Find student by email
-    const student = await Student.findOne({ email });
-
-    if (!student) {
-      return res.status(404).json({ message: "User not found" });
+    const teacher = await Teacher.findOne({ email });
+    if (!teacher) {
+      return res.status(404).json({ message: "Teacher not found" });
     }
-
-    // Check password
-    const isMatch = await bcrypt.compare(password, student.password);
+    const isMatch = await bcrypt.compare(password, teacher.password);
     if (!isMatch) {
       return res.status(400).json({ message: "Invalid credentials" });
     }
-
-    // Generate JWT Token
-    const token = jwt.sign({ id: student._id, role: "student" }, JWT_SECRET, {
+    const token = jwt.sign({ id: teacher._id, role: "teacher" }, JWT_SECRET, {
       expiresIn: "1h",
     });
-
-    res.status(200).json({ message: "Login successful", token, student });
+    res.json({ message: "Login successful", token, teacher });
   } catch (error) {
-    res.status(500).json({ message: "Server error", error });
-  }
-});
-
-// ===============================
-// 📌 Get All Students
-// ===============================
-router.get("/", async (req, res) => {
-  try {
-    const students = await Student.find();
-    res.status(200).json(students);
-  } catch (error) {
-    res.status(500).json({ message: "Server error", error });
-  }
-});
-
-// ===============================
-// 📌 Get a Single Student by ID
-// ===============================
-router.get("/:id", async (req, res) => {
-  try {
-    const student = await Student.findById(req.params.id);
-    if (!student) {
-      return res.status(404).json({ message: "Student not found" });
-    }
-    res.status(200).json(student);
-  } catch (error) {
-    res.status(500).json({ message: "Server error", error });
-  }
-});
-
-// ===============================
-// 📌 Update Student by ID
-// ===============================
-router.put("/:id", async (req, res) => {
-  try {
-    const updatedStudent = await Student.findByIdAndUpdate(
-      req.params.id,
-      req.body,
-      { new: true }
-    );
-
-    if (!updatedStudent) {
-      return res.status(404).json({ message: "Student not found" });
-    }
-
-    res.status(200).json(updatedStudent);
-  } catch (error) {
-    res.status(500).json({ message: "Server error", error });
-  }
-});
-
-// ===============================
-// 📌 Delete Student by ID
-// ===============================
-router.delete("/:id", async (req, res) => {
-  try {
-    const deletedStudent = await Student.findByIdAndDelete(req.params.id);
-
-    if (!deletedStudent) {
-      return res.status(404).json({ message: "Student not found" });
-    }
-
-    res.status(200).json({ message: "Student deleted successfully" });
-  } catch (error) {
+    console.error("Error during teacher login:", error);
     res.status(500).json({ message: "Server error", error });
   }
 });
