@@ -1,39 +1,25 @@
+// middleware/teacherAuthMiddleware.js
 const jwt = require("jsonwebtoken");
-const Teacher = require("../models/teacher"); // Your Teacher model
-require("dotenv").config();
+const Teacher = require("../models/teacher");
 
-const teacherAuthMiddleware = async (req, res, next) => {
+const verifyTeacher = async (req, res, next) => {
   try {
-    const token = req.header("Authorization");
-    if (!token) {
-      return res
-        .status(401)
-        .json({ message: "Access denied. No token provided." });
+    const authHeader = req.headers.authorization;
+    if (!authHeader) {
+      return res.status(401).json({ message: "No token provided" });
     }
 
-    // Ensure token is in "Bearer <token>" format
-    const tokenParts = token.split(" ");
-    if (tokenParts.length !== 2 || tokenParts[0] !== "Bearer") {
-      return res.status(400).json({ message: "Invalid token format" });
-    }
+    // Expecting format: "Bearer <token>"
+    const token = authHeader.split(" ")[1];
+    const decoded = jwt.verify(token, process.env.JWT_SECRET);
 
-    const decoded = jwt.verify(tokenParts[1], process.env.JWT_SECRET);
-
-    // Check if user is a teacher by finding the teacher record
-    const teacher = await Teacher.findById(decoded.id);
-    if (!teacher) {
-      return res.status(403).json({ message: "Access denied. Not a teacher." });
-    }
-
-    // Attach teacher data to request for further use
-    req.teacher = teacher;
+    // Ensure the teacher id is set from the token payload, not from any route parameter.
+    req.user = { id: decoded.id }; // decoded.id should be the teacher's ObjectId string
     next();
   } catch (error) {
-    console.error("Teacher Auth Error:", error);
-    res
-      .status(500)
-      .json({ message: "Internal server error", error: error.message });
+    console.error("Teacher auth error:", error);
+    res.status(401).json({ message: "Unauthorized", error: error.message });
   }
 };
 
-module.exports = teacherAuthMiddleware;
+module.exports = verifyTeacher;

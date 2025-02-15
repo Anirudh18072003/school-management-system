@@ -25,6 +25,7 @@ const addressSchema = new mongoose.Schema(
 const studentSchema = new mongoose.Schema(
   {
     // Basic Info
+    photo: { type: String, default: "default.jpg", required: true, trim: true },
     name: { type: String, required: true, trim: true },
     registrationNumber: {
       type: String,
@@ -46,6 +47,13 @@ const studentSchema = new mongoose.Schema(
       enum: ["Male", "Female", "Other"],
       default: "Other",
     },
+    // Other fields can be added as needed
+    subjects: [
+      {
+        type: mongoose.Schema.Types.ObjectId,
+        ref: "Subject",
+      },
+    ],
 
     // Contact & Demographics
     address: addressSchema,

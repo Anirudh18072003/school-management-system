@@ -52,6 +52,14 @@ const teacherSchema = new mongoose.Schema(
         dateIssued: { type: Date },
       },
     ],
+
+    // Assigned Classes - Array of references to Class documents
+    assignedClasses: [
+      {
+        type: mongoose.Schema.Types.ObjectId,
+        ref: "Class",
+      },
+    ],
   },
   { timestamps: true }
 );

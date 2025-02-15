@@ -2,6 +2,7 @@ const express = require("express");
 const Teacher = require("../models/teacher");
 const bcrypt = require("bcryptjs");
 const jwt = require("jsonwebtoken");
+const verifyTeacher = require("../middleware/teacherAuthMiddleware");
 
 const router = express.Router();
 const JWT_SECRET = process.env.JWT_SECRET || "your_jwt_secret";
@@ -26,6 +27,24 @@ router.get("/", async (req, res) => {
   } catch (error) {
     console.error("Error fetching teachers:", error);
     res.status(500).json({ message: "Error fetching teachers", error });
+  }
+});
+
+router.get("/classes", verifyTeacher, async (req, res) => {
+  try {
+    console.log("Teacher ID from token:", req.user.id);
+    const teacher = await Teacher.findById(req.user.id).populate(
+      "assignedClasses"
+    );
+    if (!teacher) {
+      return res.status(404).json({ message: "Teacher not found" });
+    }
+    res.json(teacher.assignedClasses);
+  } catch (error) {
+    console.error("Error fetching teacher classes:", error);
+    res
+      .status(500)
+      .json({ message: "Error fetching teacher", error: error.message });
   }
 });
 

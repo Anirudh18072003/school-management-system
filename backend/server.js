@@ -9,6 +9,7 @@ const adminRoutes = require("./routes/adminRoutes");
 const stats = require("./routes/dashboardRoutes");
 const classes = require("./routes/classRoutes")
 const attendanceRoutes = require("./routes/attendanceRoutes");
+const subjectsRoutes = require("./routes/subjectRoutes");
 
 
 
@@ -25,6 +26,7 @@ app.use("/api/admins", adminRoutes);
 app.use("/api", stats);
 app.use("/api/classes", classes);
 app.use("/api/attendance", attendanceRoutes);
+app.use("/api/subjects", subjectsRoutes);
 
 
 
